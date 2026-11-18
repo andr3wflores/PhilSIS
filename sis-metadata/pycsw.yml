@@ -37,13 +37,13 @@ manager:
 
 metadata:
     identification:
-        title: Bhutan SIS metadata
-        description: This metadata catalogue lists a set of datasets of soil data from the Bhutan Soil Information System (SIS).
+        title: Philippine SIS metadata
+        description: This metadata catalogue lists a set of datasets of soil data from the Philippine Soil Information System (SIS).
         keywords:
             - catalogue
             - discovery
             - metadata
-            - Bhutan Soil Information System
+            - Philippine Soil Information System
             - Soil
         keywords_type: theme
         fees: None
@@ -54,8 +54,8 @@ metadata:
         name: CC-BY 4.0 license
         url: https://creativecommons.org/licenses/by/4.0
     provider:
-        name: name
-        url: url
+        name: Bureau of Soils and Water Management
+        url: www.bswm.da.gov.ph
     contact:
         name: name
         position: Position Title
@@ -63,7 +63,7 @@ metadata:
         city: city
         stateorprovince: stateorprovince
         postalcode: postalcode
-        country: Bhutan
+        country: Philippines
         phone: +xx-xxx-xxx-xxxx
         fax: +xx-xxx-xxx-xxxx
         email: email
