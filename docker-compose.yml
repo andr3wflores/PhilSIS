@@ -1,20 +1,20 @@
 services:
 
-# # DEVELOPMENT
-# sis-nginx:        80:80, 443:443
-# sis-web-mapping:  8001:8000
-# sis-api:          8002:8000
-# sis-metadata:     8003:8000
-# sis-web-services: 8004:80
-# sis-database:     8005:5432
+  # # DEVELOPMENT
+  # sis-nginx:        80:80, 443:443
+  # sis-web-mapping:  8001:8000
+  # sis-api:          8002:8000
+  # sis-metadata:     8003:8000
+  # sis-web-services: 8004:80
+  # sis-database:     8005:5432
 
-# # PRODUCTION (only nginx exposed)
-# sis-nginx:        80:80, 443:443  # Only this exposed!
-# sis-web-mapping:  expose: 8000    # Internal only
-# sis-api:          expose: 8000
-# sis-metadata:     expose: 8000
-# sis-web-services: expose: 80
-# sis-database:     expose: 5432
+  # # PRODUCTION (only nginx exposed)
+  # sis-nginx:        80:80, 443:443  # Only this exposed!
+  # sis-web-mapping:  expose: 8000    # Internal only
+  # sis-api:          expose: 8000
+  # sis-metadata:     expose: 8000
+  # sis-web-services: expose: 80
+  # sis-database:     expose: 5432
 
 
   # sis-database (PostgreSQL)
@@ -34,7 +34,7 @@ services:
     expose:
       - "5432"
     volumes:
-      - ./sis-database/volume:/var/lib/postgresql/data
+      - ./sis-database/volume:/var/lib/postgresql/data:Z
     networks:
       - sis-net
     restart: unless-stopped
@@ -61,11 +61,11 @@ services:
     volumes:
       # Raster registry / DST engine needs to read & write TIFFs that
       # MapServer also serves. Read-write so DST runs can drop outputs.
-      - ./sis-web-services/volume:/srv/rasters
+      - ./sis-web-services/volume:/srv/rasters:Z
       # XML records loaded by pyCSW — registrar writes here when registering a raster.
-      - ./sis-metadata/volume:/srv/pycsw-records
+      - ./sis-metadata/volume:/srv/pycsw-records:Z
       # Landing-page media uploads (issue #13); nginx serves them at /media/.
-      - ./sis-site/volume:/srv/site-media
+      - ./sis-site/volume:/srv/site-media:Z
     ports:
       - "8002:8000"
     depends_on:
@@ -74,7 +74,7 @@ services:
       - sis-net
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -93,13 +93,13 @@ services:
     sysctls:
       net.ipv4.tcp_slow_start_after_idle: 0
     volumes:
-      - ./sis-nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./sis-web-services/volume:/srv/rasters:ro
-      - ./sis-site/volume:/srv/site-media:ro
-      # - ./sis-nginx/ssl:/etc/nginx/ssl:ro
-    # With the optional `tls` profile (see the caddy service), Caddy takes the
-    # host's 80/443 and nginx retreats to loopback: set NGINX_HTTP_BIND and
-    # NGINX_HTTPS_BIND in .env (e.g. 127.0.0.1:8080 / 127.0.0.1:8443).
+      - ./sis-nginx/nginx.conf:/etc/nginx/nginx.conf:ro,Z
+      - ./sis-web-services/volume:/srv/rasters:ro,Z
+      - ./sis-site/volume:/srv/site-media:ro,Z
+      # - ./sis-nginx/ssl:/etc/nginx/ssl:ro,Z
+      # With the optional `tls` profile (see the caddy service), Caddy takes the
+      # host's 80/443 and nginx retreats to loopback: set NGINX_HTTP_BIND and
+      # NGINX_HTTPS_BIND in .env (e.g. 127.0.0.1:8080 / 127.0.0.1:8443).
     ports:
       - "${NGINX_HTTP_BIND:-80}:80"
       - "${NGINX_HTTPS_BIND:-443}:443"
@@ -130,8 +130,8 @@ services:
     ports:
       - 8003:8000
     volumes:
-      - ./sis-metadata/pycsw.yml:/etc/pycsw/pycsw.yml
-      - ./sis-metadata/volume:/records
+      - ./sis-metadata/pycsw.yml:/etc/pycsw/pycsw.yml:Z
+      - ./sis-metadata/volume:/records:Z
     networks:
       - sis-net
     depends_on:
@@ -145,17 +145,17 @@ services:
     ports:
       - "8004:80"
     volumes:
-      - ./sis-web-services/volume:/etc/mapserver:ro
+      - ./sis-web-services/volume:/etc/mapserver:ro,Z
     depends_on:
       - sis-database
     networks:
       - sis-net
     restart: unless-stopped
 
-# sis-api-glosis (GloSIS federation data API)
-# Connects to Postgres as the read-only sis_glosis role, which only has SELECT
-# on api.vw_api_manifest, vw_api_profile, vw_api_observation. Even with a
-# valid federation token, callers cannot read or write anything else.
+  # sis-api-glosis (GloSIS federation data API)
+  # Connects to Postgres as the read-only sis_glosis role, which only has SELECT
+  # on api.vw_api_manifest, vw_api_profile, vw_api_observation. Even with a
+  # valid federation token, callers cannot read or write anything else.
   sis-api-glosis:
     container_name: sis-api-glosis
     build:
@@ -177,16 +177,16 @@ services:
       - sis-net
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')" ]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 10s
 
-# sis-web-mapping (OpenLayers)
+  # sis-web-mapping (OpenLayers)
   sis-web-mapping:
     container_name: sis-web-mapping
-    build: 
+    build:
       context: ./sis-web-mapping
       dockerfile: Dockerfile
       args:
@@ -221,16 +221,16 @@ services:
   sis-caddy:
     image: caddy:2-alpine
     container_name: sis-caddy
-    profiles: ["tls"]
+    profiles: [ "tls" ]
     environment:
       DOMAIN: ${DOMAIN:-}
     ports:
       - "80:80"
       - "443:443"
     volumes:
-      - ./sis-caddy/Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy-data:/data          # certificates + ACME account — must persist
-      - caddy-config:/config
+      - ./sis-caddy/Caddyfile:/etc/caddy/Caddyfile:ro,Z
+      - caddy-data:/data:Z # certificates + ACME account — must persist
+      - caddy-config:/config:Z
     networks:
       - sis-net
     depends_on:
