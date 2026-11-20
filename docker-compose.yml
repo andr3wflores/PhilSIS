@@ -101,8 +101,10 @@ services:
       # host's 80/443 and nginx retreats to loopback: set NGINX_HTTP_BIND and
       # NGINX_HTTPS_BIND in .env (e.g. 127.0.0.1:8080 / 127.0.0.1:8443).
     ports:
-      - "${NGINX_HTTP_BIND:-80}:80"
-      - "${NGINX_HTTPS_BIND:-443}:443"
+      # - "${NGINX_HTTP_BIND:-80}:80"
+      # - "${NGINX_HTTPS_BIND:-443}:443"
+      - "80:80"
+      - "443:443"
     depends_on:
       sis-api:
         condition: service_healthy
