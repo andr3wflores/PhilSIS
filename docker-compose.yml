@@ -207,7 +207,6 @@ services:
       - sis-web-services
       - sis-metadata
     restart: unless-stopped
-
   # Optional automatic-HTTPS front (dormant unless the `tls` profile is on).
   # Terminates TLS with Let's Encrypt certificates for ${DOMAIN} and proxies
   # everything to sis-nginx over the internal network — nothing behind it
@@ -218,28 +217,29 @@ services:
   #   NGINX_HTTPS_BIND=127.0.0.1:8443
   # Prerequisites and precautions: see "Enabling HTTPS" in the README. Never
   # enable on a shared multi-instance host.
-  sis-caddy:
-    image: caddy:2-alpine
-    container_name: sis-caddy
-    profiles: [ "tls" ]
-    environment:
-      DOMAIN: ${DOMAIN:-}
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./sis-caddy/Caddyfile:/etc/caddy/Caddyfile:ro,Z
-      - caddy-data:/data:Z # certificates + ACME account — must persist
-      - caddy-config:/config:Z
-    networks:
-      - sis-net
-    depends_on:
-      - sis-nginx
-    restart: unless-stopped
+  #
+  # sis-caddy:
+  #   image: caddy:2-alpine
+  #   container_name: sis-caddy
+  #   profiles: [ "tls" ]
+  #   environment:
+  #     DOMAIN: ${DOMAIN:-}
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   volumes:
+  #     - ./sis-caddy/Caddyfile:/etc/caddy/Caddyfile:ro,Z
+  #     - caddy-data:/data:Z # certificates + ACME account — must persist
+  #     - caddy-config:/config:Z
+  #   networks:
+  #     - sis-net
+  #   depends_on:
+  #     - sis-nginx
+  #   restart: unless-stopped
 
-volumes:
-  caddy-data:
-  caddy-config:
+  # volumes:
+  #   caddy-data:
+  #   caddy-config:
 
 networks:
   sis-net:
